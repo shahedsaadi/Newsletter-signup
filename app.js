@@ -1,3 +1,4 @@
+
 //require installed node packages
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -7,6 +8,11 @@ const https = require("https")
 
 const app = express();
 
+//package for hide APIs key
+// https://www.npmjs.com/package/dotenv
+const dotenv = require('dotenv');
+dotenv.config();
+const secret = process.env.MAILCHIMP_SECRET;
 
 //enable express to access static files in folder called "public"
 app.use(express.static("public"));
@@ -42,20 +48,23 @@ app.post("/", function(req, res){
 
    const options = {
      method: "POST",
-     auth: "shahed:8d9b63bd9e2a8ca602af24b5bbf48622-us21"
+     auth: secret
    }
 
+   // mailchimp request
    const request = https.request(url, options, function(response){
 
     if(response.statusCode === 200){
       res.sendFile(__dirname + "/success.html");
-    }else{
+    } else {
       res.sendFile(__dirname + "/failure.html");
     }
 
+    // Response from mailchimp
      response.on("data", function(data){
        console.log(JSON.parse(data));
-     } )
+     })
+
    })
 
     request.write(jasonData);
@@ -70,9 +79,3 @@ app.post("/failure", function(req, res){
 app.listen(process.env.PORT || 3000, function(){
   console.log("Server is running on port 3000");
 });
-
-// API KEY
-//8d9b63bd9e2a8ca602af24b5bbf48622-us21
-
-// list id
-// a5762173e6
